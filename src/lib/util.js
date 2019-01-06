@@ -32,7 +32,7 @@ export const env = {
   supportsTouch:
     typeof window !== 'undefined' &&
     ('ontouchstart' in window ||
-      (window.DocumentTouch && document instanceof window.DocumentTouch)),
+      (window.DocumentTouch && document instanceof window.DocumentTouch)) || navigator.maxTouchPoints,
   supportsIePointer:
     typeof navigator !== 'undefined' && navigator.msMaxTouchPoints,
   isChrome:
