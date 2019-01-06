@@ -30,8 +30,8 @@ export const env = {
     typeof document !== "undefined" &&
     "WebkitAppearance" in document.documentElement.style,
   supportsTouch:
-    (typeof window !== "undefined" &&
-      ("ontouchstart" in window ||
+    (typeof window !== 'undefined' &&
+      ('ontouchstart' in window ||
         (window.DocumentTouch && document instanceof window.DocumentTouch))) ||
     navigator.maxTouchPoints,
   supportsIePointer:
