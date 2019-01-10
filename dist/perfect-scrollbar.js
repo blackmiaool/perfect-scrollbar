@@ -1,6 +1,6 @@
 /*!
  * perfect-scrollbar v1.4.0
- * (c) 2018 Hyunje Jun
+ * (c) 2019 Hyunje Jun
  * @license MIT
  */
 (function (global, factory) {
@@ -289,10 +289,10 @@ function toInt(x) {
 
 function isEditable(el) {
   return (
-    matches(el, 'input,[contenteditable]') ||
-    matches(el, 'select,[contenteditable]') ||
-    matches(el, 'textarea,[contenteditable]') ||
-    matches(el, 'button,[contenteditable]')
+    matches(el, "input,[contenteditable]") ||
+    matches(el, "select,[contenteditable]") ||
+    matches(el, "textarea,[contenteditable]") ||
+    matches(el, "button,[contenteditable]")
   );
 }
 
@@ -309,20 +309,44 @@ function outerWidth(element) {
 
 var env = {
   isWebKit:
-    typeof document !== 'undefined' &&
-    'WebkitAppearance' in document.documentElement.style,
+    typeof document !== "undefined" &&
+    "WebkitAppearance" in document.documentElement.style,
   supportsTouch:
-    typeof window !== 'undefined' &&
-    ('ontouchstart' in window ||
-      (window.DocumentTouch && document instanceof window.DocumentTouch)),
+    (typeof window !== "undefined" &&
+      ("ontouchstart" in window ||
+        (window.DocumentTouch && document instanceof window.DocumentTouch))) ||
+    navigator.maxTouchPoints,
   supportsIePointer:
-    typeof navigator !== 'undefined' && navigator.msMaxTouchPoints,
+    typeof navigator !== "undefined" && navigator.msMaxTouchPoints,
   isChrome:
-    typeof navigator !== 'undefined' &&
-    /Chrome/i.test(navigator && navigator.userAgent),
+    typeof navigator !== "undefined" &&
+    /Chrome/i.test(navigator && navigator.userAgent)
 };
 
-var updateGeometry = function(i) {
+function watchScroll(element,listener) {
+  element = element.parentElement;
+  while (element){
+    element.addEventListener("scroll", listener);
+    element = element.parentElement;  
+  }
+  window.addEventListener("scroll",listener);
+}
+
+var scrolling=false;
+var pending=false;
+function updateGeometry(i) {
+  if(scrolling){
+    pending=true;
+    return ;
+  }
+  scrolling=true;
+  setTimeout(function (){
+    scrolling=false;
+    if(pending){
+      pending=false;
+      updateGeometry(i);
+    }
+  });
   var element = i.element;
   var roundedScrollTop = Math.floor(element.scrollTop);
 
@@ -409,7 +433,7 @@ var updateGeometry = function(i) {
     i.scrollbarYTop = 0;
     element.scrollTop = 0;
   }
-};
+}
 
 function getThumbSize(i, thumbSize) {
   if (i.settings.minScrollbarLength) {
@@ -434,11 +458,20 @@ function updateCss(element, i) {
   } else {
     xRailOffset.left = element.scrollLeft;
   }
-  if (i.isScrollbarXUsingBottom) {
-    xRailOffset.bottom = i.scrollbarXBottom - roundedScrollTop;
-  } else {
-    xRailOffset.top = i.scrollbarXTop + roundedScrollTop;
+  if(i.settings.keepInScreen){
+    if (i.isScrollbarXUsingBottom) {
+      xRailOffset.bottom =Math.max(i.scrollbarXBottom - roundedScrollTop,i.scrollbarXBottom - roundedScrollTop+ element.getBoundingClientRect().bottom-document.documentElement.clientHeight);
+    } else {
+      xRailOffset.top = i.scrollbarXTop + roundedScrollTop;
+    }
+  }else{
+    if (i.isScrollbarXUsingBottom) {
+      xRailOffset.bottom = i.scrollbarXBottom - roundedScrollTop;
+    } else {
+      xRailOffset.top = i.scrollbarXTop + roundedScrollTop;
+    }
   }
+
   set(i.scrollbarXRail, xRailOffset);
 
   var yRailOffset = { top: roundedScrollTop, height: i.railYHeight };
@@ -1237,6 +1270,12 @@ var PerfectScrollbar = function PerfectScrollbar(element, userSettings) {
   this.lastScrollTop = Math.floor(element.scrollTop); // for onScroll only
   this.lastScrollLeft = element.scrollLeft; // for onScroll only
   this.event.bind(this.element, 'scroll', function (e) { return this$1.onScroll(e); });
+ 
+  if(userSettings.keepInScreen){
+    watchScroll(this.element,function (e){
+      updateGeometry(this$1);
+    });
+  }
   updateGeometry(this);
 };
 

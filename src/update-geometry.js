@@ -3,7 +3,25 @@ import * as DOM from './lib/dom';
 import cls from './lib/class-names';
 import { toInt } from './lib/util';
 
-export default function(i) {
+function getBoundingRect(dom) {
+  const rect = dom.getBoundingClientRect();
+  return rect;
+}
+let scrolling=false;
+let pending=false;
+export default function updateGeometry(i) {
+  if(scrolling){
+    pending=true;
+    return ;
+  }
+  scrolling=true;
+  setTimeout(()=>{
+    scrolling=false;
+    if(pending){
+      pending=false;
+      updateGeometry(i);
+    }
+  });
   const element = i.element;
   const roundedScrollTop = Math.floor(element.scrollTop);
 
@@ -117,11 +135,20 @@ function updateCss(element, i) {
   } else {
     xRailOffset.left = element.scrollLeft;
   }
-  if (i.isScrollbarXUsingBottom) {
-    xRailOffset.bottom = i.scrollbarXBottom - roundedScrollTop;
-  } else {
-    xRailOffset.top = i.scrollbarXTop + roundedScrollTop;
+  if(i.settings.keepInScreen){
+    if (i.isScrollbarXUsingBottom) {
+      xRailOffset.bottom =Math.max(i.scrollbarXBottom - roundedScrollTop,i.scrollbarXBottom - roundedScrollTop+ element.getBoundingClientRect().bottom-document.documentElement.clientHeight);
+    } else {
+      xRailOffset.top = i.scrollbarXTop + roundedScrollTop;
+    }
+  }else{
+    if (i.isScrollbarXUsingBottom) {
+      xRailOffset.bottom = i.scrollbarXBottom - roundedScrollTop;
+    } else {
+      xRailOffset.top = i.scrollbarXTop + roundedScrollTop;
+    }
   }
+
   CSS.set(i.scrollbarXRail, xRailOffset);
 
   const yRailOffset = { top: roundedScrollTop, height: i.railYHeight };

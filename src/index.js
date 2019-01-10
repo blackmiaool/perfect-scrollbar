@@ -4,7 +4,7 @@ import cls from './lib/class-names';
 import EventManager from './lib/event-manager';
 import processScrollDiff from './process-scroll-diff';
 import updateGeometry from './update-geometry';
-import { toInt, outerWidth } from './lib/util';
+import { toInt, outerWidth, watchScroll } from './lib/util';
 
 import clickRail from './handlers/click-rail';
 import dragThumb from './handlers/drag-thumb';
@@ -155,6 +155,12 @@ export default class PerfectScrollbar {
     this.lastScrollTop = Math.floor(element.scrollTop); // for onScroll only
     this.lastScrollLeft = element.scrollLeft; // for onScroll only
     this.event.bind(this.element, 'scroll', e => this.onScroll(e));
+ 
+    if(userSettings.keepInScreen){
+      watchScroll(this.element,e=>{
+        updateGeometry(this);
+      });
+    }
     updateGeometry(this);
   }
 

@@ -25,18 +25,7 @@ build([
     dest: resolve('dist/perfect-scrollbar.js'),
     format: 'umd',
   },
-  {
-    dest: resolve('dist/perfect-scrollbar.min.js'),
-    format: 'umd',
-  },
-  {
-    dest: resolve('dist/perfect-scrollbar.common.js'),
-    format: 'cjs'
-  },
-  {
-    dest: resolve('dist/perfect-scrollbar.esm.js'),
-    format: 'es'
-  }
+ 
 ]);
 
 function build(builds) {

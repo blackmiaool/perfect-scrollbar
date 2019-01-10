@@ -9,13 +9,15 @@
       margin: 0px auto;
       padding: 0px;
       width: 600px;
-      height: 400px;
+      height: 900px;
       overflow: auto;
     }
     #container .content {
+      background-color: steelblue;
       background-image: url('./assets/azusa.jpg');
+      
       width: 1280px;
-      height: 720px;
+      height: 2720px;
     }
     </style>
   </head>
@@ -27,14 +29,14 @@
 
     <p style='text-align: center'>
       Width <input type='text' id='width' value='600'>
-      Height <input type='text' id='height' value='400'>
+      Height <input type='text' id='height' value='900'>
       <button onclick='updateSize()'>Change!</button>
     </p>
 
     <script>
     var $ = document.querySelector.bind(document);
 
-    var ps = new PerfectScrollbar('#container');
+    var ps = new PerfectScrollbar('#container',{keepInScreen:true});
 
     function updateSize() {
       var width = parseInt($('#width').value, 10);
